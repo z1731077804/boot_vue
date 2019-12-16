@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    druid:
+      username: root
+      password: root
+      url: jdbc:mysql:///test?characterEncoding=utf-8
+      driver-class-name: com.mysql.jdbc.Driver
+      initial-size: 5
+  thymeleaf:
+    cache: false
+mybatis:
+  mapper-locations: classpath:mapper/*Dao.xml
+  type-aliases-package: com.by.entity
+  configuration:
+    map-underscore-to-camel-case: true

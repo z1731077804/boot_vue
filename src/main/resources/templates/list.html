@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<!--<script th:src="@{/webjars/jquery/3.4.1/jquery.min.js}"></script>-->
+<script th:src="@{/webjars/jquery/3.4.1/jquery.js}"></script>
+
+<script src="/webjars/vue/2.6.10/dist/vue.min.js"></script>
+<script src="/webjars/axios/0.19.0/dist/axios.min.js"></script>
+
+
+<body>
+
+
+
+
+<div id="app">
+
+
+
+
+    <table align="center" border="1" cellspacing="0">
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>age</th>
+            <th>sex</th>
+            <th>操作</th>
+        </tr>
+
+        <tr v-for="stu in stus">
+            <td>{{stu.stuId}}</td>
+            <td>{{stu.stuName}}</td>
+            <td>{{stu.stuAge}}</td>
+            <td >{{stu.stuSex == 1 ? '男' : '女'}}</td>
+            <th>
+                <a href="" @click.prevent="del(stu.stuId)">删除</a>
+                <a href="" @click.prevent="up(stu)">修改</a>
+            </th>
+        </tr>
+
+            <tr>
+                <th colspan="5"><input type="button" @click="show()" value="增加"></th>
+            </tr>
+
+    </table>
+
+
+    <div v-if="flagAdd">
+        <div class="panel-heading">
+            <h3 class="panel-title" align="center">添加学生</h3>
+        </div>
+
+        <form @submit.prevent="submit" th:align="center" id="formId">
+            <div class="panel-body form-inline">
+
+                <label>
+                    Name:
+                    <input type="text" name="stuName" id="stuName" class="form-control"/>
+                </label>
+                <label>
+                    Age:
+                    <input type="text" name="stuAge" id="stuAge" class="form-control"/>
+                </label>
+
+                <label>
+                    Sex:
+                    <select name="stuSex" id="stuSex" class="form-control">
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                    </select>
+
+                </label>
+                <a href="" @click.prevent="add()">保存</a>
+            </div>
+        </form>
+    </div>
+
+    <div v-show="flag">
+        <div class="panel-heading">
+            <h3 class="panel-title" align="center">修改学生</h3>
+        </div>
+
+        <form @submit.prevent="submit" align="center" id="upId">
+            <div class="panel-body form-inline">
+                <label>
+                    <input type="text" name="stuId" th:type="hidden" id="stuId1" class="form-control"/>
+                </label>
+
+                <label>
+                    Name:
+                    <input type="text" name="stuName" id="stuName1" class="form-control"/>
+                </label>
+                <label>
+                    Age:
+                    <input type="text" name="stuAge" id="stuAge1" class="form-control"/>
+                </label>
+
+                <label>
+                    Sex:
+                    <select name="stuSex" id="stuSex1" class="form-control">
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                    </select>
+
+                </label>
+                <a href="" @click.prevent="upA()">修改</a>
+            </div>
+        </form>
+    </div>
+
+
+</div>
+
+
+<script>
+    var vm = new Vue({
+        el:"#app",
+        data:{stus:{},
+
+            flagAdd:false,
+            flag:false
+        },
+        mounted: function () {
+            this.plus();
+        },
+        methods: {
+            plus: function () {
+                axios({
+                    method: 'get',
+                    url:'/vue/findAll'
+                })
+                    .then((response)=>{
+                this.stus=response.data;
+            })
+            .catch((error)=>{
+                    console.log(error)
+                })
+            },
+
+            del(id) {
+                let url = 'http://localhost:8080/vue/deleteById?id='+id;
+                fetch(url, {
+                    method: 'get',
+                }).then((res) => {
+                    this.plus();
+                    console.log(res);
+            })
+            },
+            show(){
+                console.info(this)
+
+                this.flagAdd=!this.flagAdd
+
+            },
+
+            add() {
+                axios({
+                    method: 'post',
+                    url:'/vue/add',
+                    data:$("#formId").serialize()
+                })
+                    .then((response)=>{
+                    this.plus()
+            })
+            .catch((error)=>{
+                    console.log(error)
+                })
+                this.flagAdd=!this.flagAdd
+            },
+
+            up(stu){
+              /*  console.log(stu)*/
+                $("#stuId1").val(stu.stuId);
+                $("#stuName1").val(stu.stuName);
+                $("#stuAge1").val(stu.stuAge);
+                $("#stuSex1").val(stu.stuSex);
+                this.flag=!this.flag;
+            } ,
+
+           upA(){
+            /*    console.log($("#upId").serialize())*/
+               axios({
+                   method: 'post',
+                   url:'/vue/update',
+                   data:$("#upId").serialize()
+               })
+                   .then((response)=>{
+                   this.plus()
+               })
+           .catch((error)=>{
+                   console.log(error)
+               })
+               this.flag=!this.flag;
+           }
+
+        }
+    })
+
+
+</script>
+</body>
+</html>
